@@ -44,7 +44,7 @@ class CPU:
                 self.ram_write(v, address)
                 address += 1
 
-        print(self.ram[:8])
+        # print(self.ram[:8])
 
                 
                 
@@ -110,16 +110,18 @@ class CPU:
     def handle_ldi(self):
         self.reg[self.ram_read(self.pc + 1)] = self.ram_read(self.pc + 2)
         self.pc +=3
-        print("ldi")
+
     def handle_prn(self):
-        print(self.ram_read(self.pc + 1))
+        print(self.reg[self.ram_read(self.pc +1)])
         self.pc += 2
-        print("prn")
+
     def handle_mul(self):
-        # prod = self.reg[self.ram_read(self.pc + 1)] * self.reg[self.ram_read(self.pc + 2)]
-        # self.reg[self.ram_read(self.pc + 1)] = prod
-        # self.pc += 3
-        print("MUL")
+        reg_1 = self.ram_read(self.pc + 1)
+        reg_2 = self.ram_read(self.pc + 2)
+        prod = self.reg[reg_1] * self.reg[reg_2]
+        self.reg[reg_1] = prod
+        self.pc += 3
+
     def run(self):
         """Run the CPU."""
         # HLT = 0b00000001
@@ -151,11 +153,17 @@ class CPU:
         #         print(f"bad input: {bin(IR)}")
         #         running = False 
 
-        # ir = LDI
-        # self.branchtable[ir]()
-        # ir = PRN
-        # self.branchtable[ir]()
-        # ir = MUL
-        # self.branchtable[ir]()
+        ir = LDI
+        self.branchtable[ir]()
+        
+        ir = LDI
+        self.branchtable[ir]()
 
+        ir = MUL
+        self.branchtable[ir]()
+
+        ir = PRN
+        self.branchtable[ir]()
+
+        
 
