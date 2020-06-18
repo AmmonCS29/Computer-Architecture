@@ -6,8 +6,11 @@ HLT = 0b00000001
 LDI = 0b10000010 
 PRN = 0b01000111
 MUL = 0b10100010 
+ADD = 0b10100000
 PUSH = 0b01000101
 POP = 0b01000110
+RET = 0b00010001
+CALL = 0b01010000
 class CPU:
     """Main CPU class."""
     def __init__(self):
@@ -24,6 +27,9 @@ class CPU:
         self.branchtable[HLT] = self.handle_hlt
         self.branchtable[PUSH] = self.handle_push
         self.branchtable[POP] = self.handle_pop
+        self.branchtable[RET] = self.handle_ret
+        self.branchtable[CALL] = self.handle_call
+        self.branchtable[ADD] = self.handle_add
     
     def ram_read(self, address ): # accept the address to read and return the value stored 
         return self.ram[address]
@@ -66,7 +72,12 @@ class CPU:
     def handle_prn(self):
         print(self.reg[self.ram_read(self.pc +1)])
         self.pc += 2
-    
+    def handle_add(self):
+        reg_1 = self.ram_read(self.pc + 1)
+        reg_2 = self.ram_read(self.pc + 2)
+        self.alu("ADD", reg_1, reg_2)
+        self.pc += 3
+
     def handle_mul(self):
         reg_1 = self.ram_read(self.pc + 1)
         reg_2 = self.ram_read(self.pc + 2)
@@ -90,6 +101,29 @@ class CPU:
         self.reg[reg_1] = self.ram[self.reg[self.sp]]
         self.reg[self.sp] +=1
         self.pc += 2
+
+    def handle_call(self):
+        # Create the Call function
+        return_addr = self.pc + 2
+        # print("address", return_addr)
+        self.reg[self.sp] -= 1
+        self.ram[self.reg[self.sp]] = return_addr
+
+        reg_num = self.ram[self.pc + 1]
+        subroutine = self.reg[reg_num]
+        # print("reg num", reg_num)
+        self.pc = subroutine
+    
+    def handle_ret(self):
+        #Create the return function
+        #Return from subroutine
+        #Pop the value from the top of the stack and store it in the PC
+        return_addr = self.ram[self.reg[self.sp]]
+        self.reg[self.sp] += 1
+        self.pc = return_addr
+        # print(return_addr)
+        # self.pc = return_addr
+        pass
         
     
     def alu(self, op, reg_a, reg_b):
